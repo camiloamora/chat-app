@@ -22,6 +22,12 @@ io.on('connection', (socket) => {
         callback();
     });
 
+    socket.on('sendMessages', (message, callback) => {
+        const user = getUser(socket.id);
+        io.to(user.name).emit('message', { user: user.name, text: message });
+        callback();
+    });
+
     socket.on('disconnect', () => {
         console.log('user had left!!!!!');
     })
