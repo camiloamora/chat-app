@@ -5,21 +5,24 @@ import './Chat.css';
 
 import InfoBar from '../InfoBar/InfoBar';
 import Input from '../Input/Input';
+import Messages from '../Messages/Messages';
 
 let socket;
 
 const Chat = ({ location }) => {
     const [ name, setName ] = useState('');
     const [ room, setRoom ] = useState('');
+    const [ users, setUsers] = useState('');
     const [ message, setMessage ] = useState('');
     const [ messages, setMessages ] = useState([]);
     const ENDPOINT = 'localhost:5000';
+
     useEffect(() => {
         // Retrieve data from queryString
         const { name, room } = queryString.parse(location.search);
         socket = io(ENDPOINT);
 
-        console.log(socket);
+        //console.log(socket);
         setName(name);
         setRoom(room);
         // example implementation callback error
@@ -27,39 +30,44 @@ const Chat = ({ location }) => {
         //     alert(error);
         // });
 
-        socket.emit('join',{ name, room }, () => {
-            
+        socket.emit('join', { name, room }, (error) => {
+            if(error) {
+                alert(error);
+            }
         });
-        return () => {
-            socket.emit('disconnect');
-            socket.off();
-        }
+        // return () => {
+        //     socket.emit('disconnect');
+        //     socket.off();
+        // }
     }, [ENDPOINT, location.search]);
 
     useEffect(() => {
-        socket.on('messages', (message) => {
-            setMessage([...messages, message]);
+        socket.on('message', message => {
+            setMessages(messages => [...messages, message]);
         });
-    },[messages]);
+
+        socket.on("roomData", ({ users }) => {
+            setUsers(users);
+        });
+    },[]); 
 
     //function for sending messages
     const sendMessage = (event) => {
         event.preventDefault();
+        console.log(message);
         if(message) {
-            socket.emit('sendMessage',message, () => setMessage(''));
+            socket.emit('sendMessage', message, () => setMessage(''));
         }
     }
 
-    console.log(message, messages);
+    // console.log(message, messages);
 
     return(
         <div className="outerContainer">
             <div className="container">
                 <InfoBar room={room} />
+                <Messages messages={messages} name={name}/>
                 <Input message={message} setMessage={setMessage} sendMessage={sendMessage}/>
-                {/* <input valur={message} 
-                onChange={(event) => setMessage(event.target.value)}
-                onKeyPress={event => event.key === 'Enter' ? sendMessage(event) : null}/> */}
             </div>
         </div>
     )
