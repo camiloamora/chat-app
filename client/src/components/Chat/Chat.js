@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import queryString  from 'query-string';
 import io from 'socket.io-client';
+import './Chat.css';
 
+import InfoBar from '../InfoBar/InfoBar';
 
 let socket;
 
@@ -18,7 +20,7 @@ const Chat = ({ location }) => {
 
         console.log(socket);
         setName(name);
-        setName(room);
+        setRoom(room);
         // example implementation callback error
         // socket.emit('join',{ name, room }, ({ error }) => {
         //     alert(error);
@@ -52,9 +54,10 @@ const Chat = ({ location }) => {
     return(
         <div className="outerContainer">
             <div className="container">
-                <input valur={message} 
+                <InfoBar room={room} />
+                {/* <input valur={message} 
                 onChange={(event) => setMessage(event.target.value)}
-                onKeyPress={event => event.key === 'Enter' ? sendMessage(event) : null}/>
+                onKeyPress={event => event.key === 'Enter' ? sendMessage(event) : null}/> */}
             </div>
         </div>
     )
